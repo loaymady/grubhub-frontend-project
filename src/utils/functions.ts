@@ -37,9 +37,50 @@ export const updateTaskInTasks = (
   tasks: ITask[],
   updatedTask: ITask
 ): ITask[] => {
-  return tasks.map((task) =>
-    task.id === updatedTask.id ? { ...task, ...updatedTask } : task
-  );
+  // Find the task that needs to be updated
+  const existingTask = tasks.find((task) => task.id === updatedTask.id);
+
+  // If the task is not found, return the original list
+  if (!existingTask) {
+    return tasks;
+  }
+
+  // If the order is not changing, update the task directly
+  if (existingTask.order === updatedTask.order) {
+    return tasks.map((task) =>
+      task.id === updatedTask.id ? { ...task, ...updatedTask } : task
+    );
+  }
+
+  // If the order is changing, adjust the order of other tasks
+  const updatedTasks = tasks
+    .filter((task) => task.id !== updatedTask.id)
+    .map((task) => {
+      if (existingTask.order < updatedTask.order) {
+        // Order is moving down
+        if (
+          task.order > existingTask.order &&
+          task.order <= updatedTask.order
+        ) {
+          return { ...task, order: task.order - 1 };
+        }
+      } else {
+        // Order is moving up
+        if (
+          task.order < existingTask.order &&
+          task.order >= updatedTask.order
+        ) {
+          return { ...task, order: task.order + 1 };
+        }
+      }
+      return task;
+    });
+
+  // Add the updated task with the new order
+  updatedTasks.push({ ...updatedTask });
+
+  // Sort the tasks by order
+  return updatedTasks.sort((a, b) => a.order - b.order);
 };
 
 export const toggleTaskCompletedStatus = (

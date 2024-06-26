@@ -1,8 +1,8 @@
 import { DraggableProvided } from "react-beautiful-dnd";
 import { ITask } from "../interface";
-import { memo } from "react";
 import { truncateText } from "../utils/functions";
 import Button from "./ui/Button";
+import { memo, useCallback } from "react";
 
 interface IProps {
   task: ITask;
@@ -26,15 +26,15 @@ const Task = memo(
     toggleTaskCompletion,
     provided,
   }: IProps) => {
-    function onEdit() {
+    const onEdit = useCallback(() => {
       setTaskToEdit(task);
       onOpenEditModal();
-    }
+    }, [onOpenEditModal, setTaskToEdit, task]);
 
-    function onRemove() {
+    const onRemove = useCallback(() => {
       setTaskIdClicked(task.id);
       onOpenConfirmModal();
-    }
+    }, [onOpenConfirmModal, setTaskIdClicked, task.id]);
 
     return (
       <tr
@@ -94,13 +94,13 @@ const Task = memo(
             type="checkbox"
             id="completed"
             checked={task.completed}
-            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+            className="h-4 w-4 rounded border-gray-300 text-indigo-600 cursor-pointer focus:ring-indigo-600"
             onChange={() => toggleTaskCompletion(task.id)}
           />
         </td>
         <td className="px-6 py-4">
           <div className="flex space-x-2">
-            <td className="flex space-x-2 px-6 py-4">
+            <td className="flex space-x-2">
               <Button className=" px-4 py-2" onClick={onEdit}>
                 Edit
               </Button>
